@@ -5,6 +5,8 @@
 
 **Version:** [0.1.0](docs/0.1.0/en.md) · [All versions](docs/index.md) · Java 17+ · Spring Boot 4.1.2 · [MIT](LICENSE)
 
+[**Complete API, configuration and error reference →**](docs/0.1.0/reference.en.md)
+
 Inject a bounded JOIN planner from application-owned metadata. The starter configures
 `JoinPlanner` and `SearchLimits`; the application supplies a `Schema` bean and owns
 business choices, database access and authorization. Core dependency: `relational-paths:0.3.0`.
@@ -131,6 +133,8 @@ a reusable integration scenario, not a claim of a production deployment or SQL e
 <summary><picture><source media="(prefers-color-scheme: dark)" srcset="assets/lang-ru-dark.svg"><img src="assets/lang-ru-light.svg" width="42" height="26" alt="RU"></picture></summary>
 
 **Версия:** [0.1.0](docs/0.1.0/ru.md) · [Все версии](docs/index.md) · Java 17+ · Spring Boot 4.1.2 · [MIT](LICENSE)
+
+[**Полный справочник API, настроек и ошибок →**](docs/0.1.0/reference.ru.md)
 
 Внедряйте планировщик JOIN с ограничениями поиска по метаданным приложения. Стартер
 настраивает `JoinPlanner` и `SearchLimits`; приложение предоставляет `Schema` и управляет

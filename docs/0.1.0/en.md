@@ -2,6 +2,8 @@
 
 [← Versions](../index.md) · [README](../../README.md) · [Русский](ru.md)
 
+[Complete API/configuration/error reference](reference.en.md)
+
 The complete guide lives in the single README: expand EN for
 [situation](../../README.md#situation-an-order-report-with-two-addresses),
 [local setup](../../README.md#run-locally),
