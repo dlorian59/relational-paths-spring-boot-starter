@@ -1,0 +1,30 @@
+name: Java CI
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: relational-paths-spring-boot-starter
+      - uses: actions/checkout@v4
+        with:
+          repository: 59Alex/relational-paths
+          ref: main
+          path: relational-paths
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install core dependency locally
+        working-directory: relational-paths
+        run: ./gradlew publishToMavenLocal --no-daemon
+      - name: Build starter and run the Boot report
+        working-directory: relational-paths-spring-boot-starter
+        run: ./gradlew build example --no-daemon

@@ -1,0 +1,8 @@
+{
+  "properties": [{
+    "name": "relational-paths.enabled",
+    "type": "java.lang.Boolean",
+    "description": "Enable auto-configuration when one Schema candidate is available.",
+    "defaultValue": true
+  }]
+}
