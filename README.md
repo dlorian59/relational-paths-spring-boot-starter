@@ -125,7 +125,7 @@ the Boot example. `-PtestJavaVersion=17` selects an installed JDK; the source/by
 baseline stays 17. Newer JDKs do not enable separate library features. The example is
 a reusable integration scenario, not a claim of a production deployment or SQL execution.
 
-[Core library](https://github.com/59Alex/relational-paths) · [MIT license](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
+[Core library](https://github.com/dlorian59/relational-paths) · [MIT license](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
 
 </details>
 
@@ -256,6 +256,6 @@ JAR и запускает Boot-пример. `-PtestJavaVersion=17` выбира
 библиотеки. Это переиспользуемый сценарий интеграции, без заявления о внедрении в production
 или выполнении SQL.
 
-[Основная библиотека](https://github.com/59Alex/relational-paths) · [MIT](LICENSE) · [Сторонние лицензии](THIRD_PARTY_NOTICES.md)
+[Основная библиотека](https://github.com/dlorian59/relational-paths) · [MIT](LICENSE) · [Сторонние лицензии](THIRD_PARTY_NOTICES.md)
 
 </details>

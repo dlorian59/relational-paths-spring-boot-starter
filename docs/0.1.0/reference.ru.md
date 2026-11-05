@@ -98,6 +98,6 @@ SearchLimits reportLimits() {
 
 `./gradlew test example` запускает существующие проверки и отчёт без выполнения SQL. Сначала установите соседний core [командами README](../../README.md#локальный-запуск). Стартер содержит регистрацию автоконфигурации и метаданные IDE; build создаёт source/Javadoc JAR. Java 17 — база API/байткода; запуск на 21/25/27 не добавляет специфических возможностей языка. Ограничения core неизменны: только INNER JOIN, нет гарантий кардинальности, защиты строк и автоматического обновления схемы.
 
-Все типы, операторы и ошибки ядра описаны в [полном справочнике relational-paths](https://github.com/59Alex/relational-paths/blob/main/docs/0.3.0/reference.ru.md). Состояние версий — в [каталоге](../index.md); команды Maven Local не означают доступность в Central.
+Все типы, операторы и ошибки ядра описаны в [полном справочнике relational-paths](https://github.com/dlorian59/relational-paths/blob/main/docs/0.3.0/reference.ru.md). Состояние версий — в [каталоге](../index.md); команды Maven Local не означают доступность в Central.
 
 [← Руководство](ru.md)

@@ -14,7 +14,7 @@ jobs:
           path: relational-paths-spring-boot-starter
       - uses: actions/checkout@v4
         with:
-          repository: 59Alex/relational-paths
+          repository: dlorian59/relational-paths
           ref: main
           path: relational-paths
       - uses: actions/setup-java@v4

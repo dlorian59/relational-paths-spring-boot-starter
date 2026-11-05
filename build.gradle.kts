@@ -52,10 +52,10 @@ publishing {
             pom {
                 name.set("relational-paths-spring-boot-starter")
                 description.set("Spring Boot auto-configuration for explicit relational metadata and bounded JOIN planning")
-                url.set("https://github.com/59Alex/relational-paths-spring-boot-starter")
+                url.set("https://github.com/dlorian59/relational-paths-spring-boot-starter")
                 licenses { license { name.set("MIT License"); url.set("https://opensource.org/licenses/MIT") } }
-                developers { developer { id.set("59Alex"); name.set("Aleksandr Kashevarov") } }
-                scm { url.set("https://github.com/59Alex/relational-paths-spring-boot-starter") }
+                developers { developer { id.set("dlorian59"); name.set("Aleksandr Kashevarov") } }
+                scm { url.set("https://github.com/dlorian59/relational-paths-spring-boot-starter") }
             }
         }
     }
