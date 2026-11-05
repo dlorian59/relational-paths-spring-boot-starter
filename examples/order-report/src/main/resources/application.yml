@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: ${REPORT_DB_URL}
+    username: ${REPORT_DB_USER}
+    password: ${REPORT_DB_PASSWORD}
+  sql:
+    init:
+      mode: never
+relational-paths:
+  max-tables: 32
+  max-relationships: 64
+  max-edge-visits: 64

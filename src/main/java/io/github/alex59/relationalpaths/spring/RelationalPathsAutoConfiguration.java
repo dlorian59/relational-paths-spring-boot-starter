@@ -1,6 +1,7 @@
 package io.github.alex59.relationalpaths.spring;
 
 import io.github.alex59.relationalpaths.JoinPlanner;
+import io.github.alex59.relationalpaths.RelationalQueries;
 import io.github.alex59.relationalpaths.Schema;
 import io.github.alex59.relationalpaths.SearchLimits;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -38,5 +39,16 @@ public final class RelationalPathsAutoConfiguration {
     @ConditionalOnMissingBean
     JoinPlanner relationalPathsJoinPlanner(Schema schema, SearchLimits limits) {
         return new JoinPlanner(schema, limits);
+    }
+
+    /** Exposes the concise facade over the selected planner, preserving its limits.
+     * @param planner configured or application-supplied planner
+     * @return shareable facade with immutable per-query templates
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnSingleCandidate(JoinPlanner.class)
+    RelationalQueries relationalQueries(JoinPlanner planner) {
+        return new RelationalQueries(planner);
     }
 }

@@ -2,7 +2,7 @@
 
 [← Integration guide](en.md) · [Versions](../index.md) · [README](../../README.md) · [Русский](reference.ru.md)
 
-This starter integrates `relational-paths:0.3.0` with Spring Boot 4.1.2. It configures plain immutable planning objects, not a database, ORM or AOP interceptor. Read the [complete order-report scenario](../../README.md#situation-an-order-report-with-two-addresses) first.
+This starter integrates `relational-paths:0.3.0` with Spring Boot 4.1.2. It configures plain immutable planning objects, not a database, ORM or AOP interceptor. Read the [complete order-report scenario](integration.en.md#start-with-the-business-question) first.
 
 ## Public types and integration points
 
@@ -12,7 +12,7 @@ This starter integrates `relational-paths:0.3.0` with Spring Boot 4.1.2. It conf
 | [RelationalPathsProperties](../../src/main/java/io/github/alex59/relationalpaths/spring/RelationalPathsProperties.java) | Immutable record with `maxTables()`, `maxRelationships()`, `maxEdgeVisits()` and standard record accessors/equality. | Boot binding provides missing-value defaults; direct `new RelationalPathsProperties(...)` requires all three ints and does not itself validate core bounds. |
 | [toSearchLimits()](../../src/main/java/io/github/alex59/relationalpaths/spring/RelationalPathsProperties.java) | Creates core `SearchLimits` and validates its numeric bounds. | No schema validation until a planner is constructed. This method is not a dynamic refresh mechanism. |
 | Application `Schema` bean | [ReportConfiguration](../../src/examples/java/example/reports/ReportConfiguration.java) declares permitted roles, columns and relationships. | Application owns metadata, tenant policy and access; no scanning or inferred authorization. |
-| Injected `JoinPlanner` / optional custom `SearchLimits` | Constructor injection into [OrderReport](../../src/examples/java/example/reports/OrderReport.java); see activation matrix below. | No new core API; `SqlRenderer.select` remains static. |
+| Injected `JoinPlanner` / optional custom `SearchLimits` | Constructor injection into [OrderReport](../../src/examples/java/example/reports/OrderReport.java); see activation matrix below. | Low-level planner API stays compatible; `SqlRenderer.select` remains static. |
 
 ## Properties and defaults
 
@@ -36,7 +36,7 @@ relational-paths.max-edge-visits=64
 
 ## Activation and bean precedence
 
-The table describes only beans created by the starter; application beans remain in the context. Conditions and precedence are exercised by the [existing context tests](../../src/test/java/io/github/alex59/relationalpaths/spring/RelationalPathsAutoConfigurationTest.java).
+The table describes planner/limits creation; application beans remain in the context. The facade is additionally created only with one resolvable JoinPlanner and no user RelationalQueries bean. Multiple planners without a primary do not force an arbitrary choice or fail facade creation. Conditions and precedence are exercised by the [existing context tests](../../src/test/java/io/github/alex59/relationalpaths/spring/RelationalPathsAutoConfigurationTest.java).
 
 | Application state | Auto-created beans | Consequence |
 | --- | --- | --- |
@@ -47,7 +47,7 @@ The table describes only beans created by the starter; application beans remain 
 | Selected Schema + custom SearchLimits, no planner | JoinPlanner using that limits bean | No default SearchLimits; properties do not overwrite the custom object. Multiple limits need an injectable primary/unique candidate. |
 | Selected Schema + custom JoinPlanner | Neither default planner nor default limits | Custom planner construction, metadata and bounds belong to the application. Existing custom limits are untouched. |
 
-With active auto-configuration, the immutable properties bean is registered even when an application planner replaces the defaults. Default bean names are `relationalPathsSearchLimits` and `relationalPathsJoinPlanner`; replacement is by type, not by naming. Use a single `@Bean` for custom limits in your normal application configuration:
+With active auto-configuration, the immutable properties bean is registered even when an application planner replaces the defaults. Default bean names are `relationalPathsSearchLimits`, `relationalPathsJoinPlanner` and `relationalQueries`; replacement is by type, not by naming. Use a single `@Bean` for custom limits in your normal application configuration:
 
 ```java
 // A custom limits bean replaces property-derived defaults for the auto-configured planner.
@@ -96,8 +96,16 @@ If an independent service-level timing/audit/transaction concern needs AOP, plac
 | Explicit shipping route, reusable plan, tenant/name bindings | [OrderReport](../../src/examples/java/example/reports/OrderReport.java) |
 | Defaults, opt-out, @Primary, custom bean precedence, startup limits, search failure, report SQL | [Context tests](../../src/test/java/io/github/alex59/relationalpaths/spring/RelationalPathsAutoConfigurationTest.java) |
 
-`./gradlew test example` runs the existing checks and report; it performs no SQL execution. Install the sibling core first using the [README commands](../../README.md#run-locally). The starter contains auto-configuration discovery and IDE metadata; source/Javadoc JARs are generated by build. Java 17 is the API/bytecode baseline; running on 21/25/27 adds no starter-specific language feature. The core metadata graph and SQL restrictions remain unchanged: INNER JOIN only, no cardinality guarantees, no row-level security and no automatic schema refresh.
+`./gradlew test example` runs the existing checks and report; it performs no SQL execution. Install the sibling core first using the [CONTRIBUTING commands](../../CONTRIBUTING.md). The starter contains auto-configuration discovery and IDE metadata; source/Javadoc JARs are generated by build. Java 17 is the API/bytecode baseline; running on 21/25/27 adds no starter-specific language feature. The core metadata graph and SQL restrictions remain unchanged: INNER JOIN only, no cardinality guarantees, no row-level security and no automatic schema refresh.
 
 For every core type/operator/error, see [relational-paths full reference](https://github.com/dlorian59/relational-paths/blob/main/docs/0.3.0/reference.en.md). For publication/version state, use [versions](../index.md); Maven Local commands do not imply Central availability.
 
 [← Integration guide](en.md)
+
+## Query facade
+
+The starter also provides RelationalQueries from the selected JoinPlanner, when one planner is resolvable and no user RelationalQueries bean exists. It preserves custom planner limits. This is ordinary dependency injection, not an aspect or a replacement planner. The existing single-Schema condition still applies.
+
+RelationalQueries.from(root) returns an immutable Select: select(role.column...), whereEqual(column, value), where(column, operator, value), via(target, relationshipIds...), build(). build returns PlannedQuery with plan/statement/sql/bindings/explain. Targets are inferred from projections and filters; duplicate via assignments and routes for unused targets fail. All allowlists, ambiguity exceptions, explicit-route checks and search caps delegate to core. The facade does not execute JDBC or own connection/transaction/cancellation resources.
+
+[Existing-project integration / Подключение к проекту](integration.en.md) · [README](../../README.md)

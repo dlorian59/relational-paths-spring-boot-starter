@@ -5,6 +5,7 @@ import example.reports.ReportApplication;
 import example.reports.ReportConfiguration;
 import io.github.alex59.relationalpaths.AmbiguousPathException;
 import io.github.alex59.relationalpaths.JoinPlanner;
+import io.github.alex59.relationalpaths.RelationalQueries;
 import io.github.alex59.relationalpaths.PlanningException;
 import io.github.alex59.relationalpaths.Schema;
 import io.github.alex59.relationalpaths.SearchLimits;
@@ -120,6 +121,28 @@ class RelationalPathsAutoConfigurationTest {
                     "\"t0\".\"tenant_id\" = \"t2\".\"tenant_id\"",
                     "WHERE \"t0\".\"tenant_id\" = ? AND \"t1\".\"name\" = ?");
         });
+    }
+
+    @Test void facadeUsesCustomPlannerLimitsAndRespectsApplicationFacade() {
+        var schema = new ReportConfiguration().reportingSchema();
+        var planner = new JoinPlanner(schema, new SearchLimits(3, 3, 0));
+        runner.withBean(Schema.class, () -> schema).withBean(JoinPlanner.class, () -> planner)
+            .run(context -> assertThatThrownBy(() -> context.getBean(RelationalQueries.class)
+                .from("orders").select("customer.name").build()).isInstanceOf(PlanningException.class));
+        var facade = new RelationalQueries(schema);
+        runner.withBean(Schema.class, () -> schema).withBean(RelationalQueries.class, () -> facade)
+            .run(context -> assertThat(context.getBean(RelationalQueries.class)).isSameAs(facade));
+    }
+
+    @Test void multipleApplicationPlannersDoNotAcquireAnAmbiguousFacadeDependency() {
+        var schema = new ReportConfiguration().reportingSchema();
+        runner.withBean(Schema.class, () -> schema)
+            .withBean("firstPlanner", JoinPlanner.class, () -> new JoinPlanner(schema))
+            .withBean("secondPlanner", JoinPlanner.class, () -> new JoinPlanner(schema))
+            .run(context -> {
+                assertThat(context).hasNotFailed().doesNotHaveBean(RelationalQueries.class);
+                assertThat(context.getBeansOfType(JoinPlanner.class)).hasSize(2);
+            });
     }
 
     @Configuration(proxyBeanMethods = false)

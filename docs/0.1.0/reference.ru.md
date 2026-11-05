@@ -2,7 +2,7 @@
 
 [← Руководство](ru.md) · [Версии](../index.md) · [README](../../README.md) · [English](reference.en.md)
 
-Стартер интегрирует `relational-paths:0.3.0` со Spring Boot 4.1.2. Он настраивает обычные неизменяемые объекты планирования, а не БД, ORM или AOP-перехватчик. Начните с [полного сценария отчёта](../../README.md#ситуация-отчёт-по-заказам-с-двумя-адресами).
+Стартер интегрирует `relational-paths:0.3.0` со Spring Boot 4.1.2. Он настраивает обычные неизменяемые объекты планирования, а не БД, ORM или AOP-перехватчик. Начните с [полного сценария отчёта](integration.ru.md#начните-с-бизнес-задачи).
 
 ## Публичные типы и точки интеграции
 
@@ -36,7 +36,7 @@ relational-paths.max-edge-visits=64
 
 ## Активация и приоритет beans
 
-Таблица описывает только beans, создаваемые стартером; собственные beans приложения остаются в контексте. Условия и приоритет проверяют [существующие контекстные тесты](../../src/test/java/io/github/alex59/relationalpaths/spring/RelationalPathsAutoConfigurationTest.java).
+Таблица описывает создание планировщика/лимитов; собственные beans остаются в контексте. Фасад дополнительно создаётся только при одном разрешимом JoinPlanner и отсутствии пользовательского RelationalQueries. Несколько планировщиков без основного не приводят к произвольному выбору или ошибке создания фасада. Условия и приоритет проверяют [существующие контекстные тесты](../../src/test/java/io/github/alex59/relationalpaths/spring/RelationalPathsAutoConfigurationTest.java).
 
 | Состояние приложения | Создаваемые beans | Следствие |
 | --- | --- | --- |
@@ -47,7 +47,7 @@ relational-paths.max-edge-visits=64
 | Выбранная Schema + собственный SearchLimits, нет планировщика | JoinPlanner с этим bean лимитов | Default SearchLimits не создаётся; properties не перезаписывают объект. Нескольким beans лимитов нужен основной/уникальный кандидат. |
 | Выбранная Schema + собственный JoinPlanner | Ни default-планировщика, ни default-лимитов | Конструирование, схема и лимиты собственного планировщика — ответственность приложения. Существующие лимиты не меняются. |
 
-При активной автоконфигурации неизменяемый bean properties регистрируется и при пользовательском планировщике. Имена default-beans — `relationalPathsSearchLimits` и `relationalPathsJoinPlanner`; замена определяется типом, а не именем. Для собственных лимитов достаточно `@Bean` в обычной конфигурации приложения:
+При активной автоконфигурации неизменяемый bean properties регистрируется и при пользовательском планировщике. Имена default-beans — `relationalPathsSearchLimits`, `relationalPathsJoinPlanner` и `relationalQueries`; замена определяется типом, а не именем. Для собственных лимитов достаточно `@Bean` в обычной конфигурации приложения:
 
 ```java
 // A custom limits bean replaces property-derived defaults for the auto-configured planner.
@@ -96,8 +96,16 @@ SearchLimits reportLimits() {
 | Явный shipping-маршрут, переиспользуемый план, tenant/name-параметры | [OrderReport](../../src/examples/java/example/reports/OrderReport.java) |
 | Defaults, отключение, @Primary, приоритет beans, startup-лимиты, ошибка поиска, SQL отчёта | [Контекстные тесты](../../src/test/java/io/github/alex59/relationalpaths/spring/RelationalPathsAutoConfigurationTest.java) |
 
-`./gradlew test example` запускает существующие проверки и отчёт без выполнения SQL. Сначала установите соседний core [командами README](../../README.md#локальный-запуск). Стартер содержит регистрацию автоконфигурации и метаданные IDE; build создаёт source/Javadoc JAR. Java 17 — база API/байткода; запуск на 21/25/27 не добавляет специфических возможностей языка. Ограничения core неизменны: только INNER JOIN, нет гарантий кардинальности, защиты строк и автоматического обновления схемы.
+`./gradlew test example` запускает существующие проверки и отчёт без выполнения SQL. Сначала установите соседний core [командами CONTRIBUTING](../../CONTRIBUTING.md). Стартер содержит регистрацию автоконфигурации и метаданные IDE; build создаёт source/Javadoc JAR. Java 17 — база API/байткода; запуск на 21/25/27 не добавляет специфических возможностей языка. Ограничения core неизменны: только INNER JOIN, нет гарантий кардинальности, защиты строк и автоматического обновления схемы.
 
 Все типы, операторы и ошибки ядра описаны в [полном справочнике relational-paths](https://github.com/dlorian59/relational-paths/blob/main/docs/0.3.0/reference.ru.md). Состояние версий — в [каталоге](../index.md); команды Maven Local не означают доступность в Central.
 
 [← Руководство](ru.md)
+
+## Фасад запросов
+
+Стартер также предоставляет RelationalQueries из выбранного JoinPlanner, если разрешим один планировщик и пользовательского bean RelationalQueries нет. Лимиты планировщика сохраняются. Это обычное внедрение зависимостей, не аспект и не другой планировщик. Прежнее условие единственной Schema остаётся.
+
+RelationalQueries.from(root) возвращает неизменяемый Select: select(role.column...), whereEqual(column, value), where(column, operator, value), via(target, relationshipIds...), build(). build возвращает PlannedQuery с plan/statement/sql/bindings/explain. Цели выводятся из проекций и фильтров; повторные via и маршруты неиспользуемых целей отклоняются. Allowlist, неоднозначность, проверка маршрутов и лимиты делегируются core. Фасад не выполняет JDBC и не владеет ресурсами соединения/транзакции/отмены.
+
+[Existing-project integration / Подключение к проекту](integration.ru.md) · [README](../../README.md)
